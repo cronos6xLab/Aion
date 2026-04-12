@@ -157,6 +157,8 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     position: relative;
     z-index: 50;
+    max-height: 400px;
+    overflow-y: auto;
   }
   .search-results.visible { display: block; }
   .search-result-item {
@@ -165,20 +167,38 @@
     border-bottom: 1px solid var(--border);
     font-size: 0.87rem;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     transition: background 0.15s;
     color: var(--dark);
   }
   .search-result-item:last-child { border-bottom: none; }
   .search-result-item:hover { background: var(--cream); }
-  .search-result-item .aroma-icon { font-size: 1.1rem; }
-  .search-result-item .aroma-name { font-weight: 500; flex: 1; color: var(--dark); }
-  .search-result-item .aroma-category {
-    font-size: 0.72rem;
+  .search-result-item .aroma-code {
+    font-weight: 600;
+    min-width: 60px;
+    color: var(--dark);
+  }
+  .search-result-item .aroma-info {
+    flex: 1;
+  }
+  .search-result-item .aroma-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--dark);
+  }
+  .search-result-item .aroma-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 0.7rem;
     color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.3px;
+  }
+  .search-result-item .aroma-meta span {
+    background: #f0ebe4;
+    padding: 2px 8px;
+    border-radius: 12px;
   }
 
   .selected-aroma-tag {
@@ -187,16 +207,33 @@
     background: #fff8ee;
     border: 1px solid #c9a96e;
     border-radius: 10px;
-    padding: 10px 14px;
+    padding: 12px 14px;
     font-size: 0.85rem;
     align-items: center;
     gap: 10px;
   }
   .selected-aroma-tag.visible { display: flex; }
-  .selected-aroma-tag .aroma-emoji { font-size: 1.2rem; }
+  .selected-aroma-tag .aroma-emoji { font-size: 1.5rem; }
   .selected-aroma-tag .aroma-text { flex: 1; }
-  .selected-aroma-tag .aroma-text strong { display: block; font-weight: 500; color: var(--dark); }
-  .selected-aroma-tag .aroma-text small { color: var(--muted); font-size: 0.75rem; }
+  .selected-aroma-tag .aroma-text strong {
+    display: block;
+    font-weight: 600;
+    color: var(--dark);
+  }
+  .selected-aroma-tag .aroma-text .aroma-code-badge {
+    font-family: monospace;
+    background: var(--dark);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    display: inline-block;
+    margin-right: 6px;
+  }
+  .selected-aroma-tag .aroma-text small {
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
   .remove-aroma {
     background: none;
     border: none;
@@ -454,24 +491,22 @@
     <div class="product-subtitle">Longevity · Strong Sillage</div>
   </div>
 
-  <!-- Las secciones de notas y temporadas han sido eliminadas -->
-
   <div class="divider"></div>
 
   <div class="search-section">
     <div class="section-label">Elige tu aroma</div>
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
-      <input type="text" id="search-input" placeholder="Buscar aroma... (ej: vainilla, cítrico, madera)">
+      <input type="text" id="search-input" placeholder="Buscar por código, nombre, casa, ocasión...">
       <div class="search-results" id="search-results"></div>
     </div>
   </div>
 
   <div class="selected-aroma-tag" id="selected-aroma-tag">
-    <span class="aroma-emoji" id="tag-emoji">🌸</span>
+    <span class="aroma-emoji" id="tag-emoji">🧴</span>
     <div class="aroma-text">
       <strong id="tag-name">Aroma seleccionado</strong>
-      <small id="tag-category">Categoría</small>
+      <small id="tag-category">Código</small>
     </div>
     <button class="remove-aroma" onclick="clearAroma()">✕</button>
   </div>
@@ -556,17 +591,362 @@
   // ══════════════════════════════════════════════════
   const WA_NUMBER = "525582006752";  // Tu número de México
 
+  // Lista completa de perfumes (código, nombre, casa, ocasión, familia)
   const AROMAS = [
-    { name: "Aqua di Mare", emoji: "🌊", category: "Acuático" },
-    { name: "Rosa Nocturna", emoji: "🥀", category: "Floral" },
-    { name: "Bosque de Oud", emoji: "🪵", category: "Amaderado" },
-    { name: "Vainilla Amber", emoji: "🍯", category: "Oriental" },
-    { name: "Cítrico Fresco", emoji: "🍊", category: "Cítrico" },
-    { name: "Jardín Provenzal", emoji: "💜", category: "Aromático" },
-    { name: "Noche Parisina", emoji: "🖤", category: "Chypre" },
-    { name: "Mar Caribe", emoji: "🌴", category: "Tropical" },
-    { name: "Flor de Cerezo", emoji: "🌸", category: "Frutal Floral" },
-    { name: "Tabaco & Cuero", emoji: "🟫", category: "Cuero" }
+    { code: "C0086", name: "First Instinct Blue", brand: "Abercrombie & Fitch", occasion: "Día / Verano / Casual", family: "Aromática Fougère" },
+    { code: "C0085", name: "First Instinct", brand: "Abercrombie & Fitch", occasion: "Día / Casual", family: "Aromática Fougère" },
+    { code: "U0002N", name: "Acqua di Parma Colonia", brand: "Acqua di Parma", occasion: "Día / Calor / Elegante", family: "Cítrica" },
+    { code: "C0208NA", name: "9PM", brand: "Afnan", occasion: "Noche / Fiestas", family: "Ámbar Vainilla" },
+    { code: "U0135N", name: "Bake", brand: "Akro", occasion: "Día / Gourmand", family: "Oriental Vainilla" },
+    { code: "U0057NA", name: "Amber Oud Gold Edition", brand: "Al Haramain", occasion: "Noche / Versátil", family: "Ámbar Vainilla" },
+    { code: "U0004NA", name: "Amber Oud Rouge", brand: "Al Haramain", occasion: "Noche / Especial", family: "Ámbar Floral" },
+    { code: "U0098NA", name: "Oudh 36 Nuit", brand: "Al Haramain", occasion: "Noche / Invierno", family: "Ámbar" },
+    { code: "U0111NA", name: "Amber Oud Tobacco Edition", brand: "Al Haramain", occasion: "Noche / Tabaco", family: "Ámbar Especiada" },
+    { code: "C0223N", name: "Reflection Man", brand: "Amouage", occasion: "Día / Oficina / Formal", family: "Almizcle Amaderado" },
+    { code: "C0031", name: "Aramis", brand: "Aramis", occasion: "Clásico / Formal", family: "Amaderada Chipre" },
+    { code: "D0025", name: "Ari", brand: "Ariana Grande", occasion: "Día / Casual", family: "Floral Frutal G." },
+    { code: "D0048", name: "Cloud", brand: "Ariana Grande", occasion: "Día / Diario", family: "Floral Frutal G." },
+    { code: "D0223", name: "Cloud Intense", brand: "Ariana Grande", occasion: "Tarde / Frío", family: "Ámbar Vainilla" },
+    { code: "D0207", name: "Cloud Pink", brand: "Ariana Grande", occasion: "Día / Verano", family: "Ámbar Vainilla" },
+    { code: "D0152", name: "R.E.M.", brand: "Ariana Grande", occasion: "Noche / Relajado", family: "Ámbar Vainilla" },
+    { code: "D0167", name: "Sweet Like Candy", brand: "Ariana Grande", occasion: "Día / Juvenil", family: "Floral Frutal G." },
+    { code: "D0168", name: "Thank U Next", brand: "Ariana Grande", occasion: "Día / Verano", family: "Floral Frutal G." },
+    { code: "C0063NA", name: "Club de Nuit Intense Man", brand: "Armaf", occasion: "Noche / Versátil", family: "Amaderada Especiada" },
+    { code: "D0252NA", name: "Club de Nuit Intense Woman", brand: "Armaf", occasion: "Noche / Elegante", family: "Chipre Floral" },
+    { code: "C0246NA", name: "Club de Nuit Urban Elixir", brand: "Armaf", occasion: "Tarde / Noche", family: "Amaderada" },
+    { code: "C0250NA", name: "Odyssey Mandarin Sky", brand: "Armaf", occasion: "Día / Dulce", family: "Cítrica" },
+    { code: "C0038", name: "Azzaro Pour Homme", brand: "Azzaro", occasion: "Clásico / Masculino", family: "Aromática Fougère" },
+    { code: "C0061", name: "Chrome", brand: "Azzaro", occasion: "Día / Verano", family: "Cítrica Aromática" },
+    { code: "C0259", name: "Forever Wanted Elixir", brand: "Azzaro", occasion: "Noche / Intenso", family: "Cuero" },
+    { code: "C0252", name: "The Most Wanted Parfum", brand: "Azzaro", occasion: "Noche / Citas", family: "Amaderada Especiada" },
+    { code: "C0203", name: "Wanted", brand: "Azzaro", occasion: "Día / Limón", family: "Amaderada Especiada" },
+    { code: "U0076N", name: "Gris Charnel", brand: "BDK Parfums", occasion: "Tarde / Otoño", family: "Ámbar Especiada" },
+    { code: "D0175", name: "Tribu", brand: "Benetton", occasion: "Casual / Retro", family: "Floral" },
+    { code: "C0110NA", name: "King", brand: "Bharara", occasion: "Día / Versátil", family: "Aromática" },
+    { code: "D0283NA", name: "Niche Femme", brand: "Bharara", occasion: "Día / Femenino", family: "Floral" },
+    { code: "D0211", name: "Eilish", brand: "Billie Eilish", occasion: "Tarde / Invierno", family: "Ámbar Vainilla" },
+    { code: "U0114N", name: "Bleecker Street", brand: "Bond No. 9", occasion: "Día / Primavera", family: "Ámbar Amaderada" },
+    { code: "U0059N", name: "Lafayette Street", brand: "Bond No. 9", occasion: "Noche / Urbano", family: "Ámbar Fougère" },
+    { code: "U0130N", name: "Nomad", brand: "Bond No. 9", occasion: "Tarde / Versátil", family: "Oriental Floral" },
+    { code: "D0073", name: "Fantasy", brand: "Britney Spears", occasion: "Día / Informal", family: "Floral Frutal G." },
+    { code: "D0222", name: "Jungle Fantasy", brand: "Britney Spears", occasion: "Día / Divertido", family: "Floral Frutal G." },
+    { code: "D0099", name: "Midnight Fantasy", brand: "Britney Spears", occasion: "Noche / Frutal", family: "Floral Frutal" },
+    { code: "C0056", name: "Burberry Men", brand: "Burberry", occasion: "Oficina / Clásico", family: "Amaderada Aromática" },
+    { code: "D0037", name: "Burberry For Her", brand: "Burberry", occasion: "Día / Frutal", family: "Floral Frutal G." },
+    { code: "D0038", name: "Burberry Her Elixir", brand: "Burberry", occasion: "Tarde / Cremoso", family: "Floral Frutal G." },
+    { code: "C0231", name: "Hero Parfum", brand: "Burberry", occasion: "Noche / Maderas", family: "Oriental Amaderada" },
+    { code: "C0251", name: "Mr. Burberry", brand: "Burberry", occasion: "Oficina / Elegante", family: "Amaderada Aromática" },
+    { code: "D0208", name: "Goddess", brand: "Burberry", occasion: "Día / Versátil", family: "Aromática" },
+    { code: "D0039", name: "My Burberry", brand: "Burberry", occasion: "Día / Lluvia", family: "Floral" },
+    { code: "C0057", name: "Man In Black", brand: "Bvlgari", occasion: "Noche / Formal", family: "Ámbar Floral" },
+    { code: "C0181", name: "Man Rain Essence", brand: "Bvlgari", occasion: "Día / Lluvia", family: "Amaderada" },
+    { code: "C0023", name: "Aqva Pour Homme", brand: "Bvlgari", occasion: "Verano / Mar", family: "Aromática Acuática" },
+    { code: "D0139", name: "Omnia Coral", brand: "Bvlgari", occasion: "Día / Verano", family: "Frutal" },
+    { code: "D0140", name: "Omnia Paraiba", brand: "Bvlgari", occasion: "Día / Tropical", family: "Floral Frutal" },
+    { code: "U0118N", name: "Sahare", brand: "Bvlgari", occasion: "Noche / Desierto", family: "Oriental Floral" },
+    { code: "D0236", name: "Splendida Patchouli Tentation", brand: "Bvlgari", occasion: "Noche / Chipre", family: "Chipre Floral" },
+    { code: "C0217", name: "Tygar", brand: "Bvlgari", occasion: "Verano / Lujo", family: "Cítrica Aromática" },
+    { code: "U0006N", name: "Angels Share", brand: "By Kilian", occasion: "Noche / Invierno", family: "Ámbar Vainilla" },
+    { code: "U0121N", name: "Apple Brandy on the Rocks", brand: "By Kilian", occasion: "Noche / Fiesta", family: "Aromática Frutal" },
+    { code: "U0016N", name: "Black Phantom", brand: "By Kilian", occasion: "Noche / Oscuro", family: "Ámbar Vainilla" },
+    { code: "U0053N", name: "Blue Moon Ginger Dash", brand: "By Kilian", occasion: "Verano / Coctel", family: "Aromática Fougère" },
+    { code: "D0040N", name: "Can't Stop Loving You", brand: "By Kilian", occasion: "Romántico / Día", family: "Ámbar Vainilla" },
+    { code: "U0100N", name: "Fièvre Verte", brand: "By Kilian", occasion: "Noche / Absenta", family: "Amaderada Aromática" },
+    { code: "U0096N", name: "Intoxicated", brand: "By Kilian", occasion: "Noche / Café", family: "Ámbar Especiada" },
+    { code: "D0116N", name: "Love Don't Be Shy", brand: "By Kilian", occasion: "Citas / Dulce", family: "Ámbar" },
+    { code: "U0131N", name: "Old Fashioned", brand: "By Kilian", occasion: "Clásico / Whisky", family: "Oriental Fougère" },
+    { code: "U0086N", name: "Smoking Hot", brand: "By Kilian", occasion: "Noche / Tabaco", family: "Ámbar Especiada" },
+    { code: "U0077N", name: "Animalique", brand: "Byredo", occasion: "Noche / Nicho", family: "Ámbar Floral" },
+    { code: "U0071NA", name: "Blanche", brand: "Byredo", occasion: "Día / Limpio", family: "Floral Aldehídica" },
+    { code: "U0070NA", name: "Eyes Closed", brand: "Byredo", occasion: "Invierno / Íntimo", family: "Almizcle Floral Amad." },
+    { code: "U0069NA", name: "Gypsy Water", brand: "Byredo", occasion: "Día / Bohemio", family: "Amaderada Aromática" },
+    { code: "U0052NA", name: "Vanille Antique", brand: "Byredo", occasion: "Noche / Madera", family: "Ámbar Amaderada" },
+    { code: "U0068NA", name: "Bal d'Afrique", brand: "Byredo", occasion: "Día / Cítrico", family: "Ámbar Amaderada" },
+    { code: "D0020", name: "Amor Amor", brand: "Cacharel", occasion: "Día / Juvenil", family: "Floral Frutal" },
+    { code: "D0021", name: "Anais Anais", brand: "Cacharel", occasion: "Clásico / Floral", family: "Floral" },
+    { code: "D0191", name: "Yes I Am Bloom Up", brand: "Cacharel", occasion: "Día / Alegre", family: "Floral Frutal" },
+    { code: "D0123", name: "Noa", brand: "Cacharel", occasion: "Día / Suave", family: "Almizcle Floral" },
+    { code: "U0023", name: "CK One", brand: "Calvin Klein", occasion: "Día / Unisex", family: "Cítrica Aromática" },
+    { code: "D0069", name: "Eternity", brand: "Calvin Klein", occasion: "Día / Clásico", family: "Floral" },
+    { code: "C0078", name: "Eternity For Men", brand: "Calvin Klein", occasion: "Oficina / Fresco", family: "Aromática Fougère" },
+    { code: "D0070", name: "Euphoria", brand: "Calvin Klein", occasion: "Noche / Misterioso", family: "Ámbar Floral" },
+    { code: "C0137", name: "Obsession", brand: "Calvin Klein", occasion: "Invierno / Clásico", family: "Ámbar Amaderada" },
+    { code: "C0236", name: "Defy", brand: "Calvin Klein", occasion: "Día / Moderno", family: "Amaderada Aromática" },
+    { code: "D0058", name: "Carlo Corinto", brand: "Carlo Corinto", occasion: "Oficina / Diario", family: "Amaderada" },
+    { code: "D0001", name: "212", brand: "Carolina Herrera", occasion: "Día / Urbano", family: "Almizcle Floral" },
+    { code: "C0008", name: "212 Men", brand: "Carolina Herrera", occasion: "Día / Urbano", family: "Almizcle Amaderado" },
+    { code: "D0003", name: "212 Sexy", brand: "Carolina Herrera", occasion: "Noche / Seductor", family: "Ámbar Floral" },
+    { code: "C0010", name: "212 Sexy Men", brand: "Carolina Herrera", occasion: "Noche / Club", family: "Ámbar Fougère" },
+    { code: "D0005", name: "212 VIP", brand: "Carolina Herrera", occasion: "Noche / Fiesta", family: "Ámbar Vainilla" },
+    { code: "C0015", name: "212 VIP Men", brand: "Carolina Herrera", occasion: "Noche / Fiesta", family: "Ámbar Amaderada" },
+    { code: "C0013", name: "212 VIP Men Black", brand: "Carolina Herrera", occasion: "Noche / Intenso", family: "Aromática Fougère" },
+    { code: "D0007", name: "212 VIP Rose", brand: "Carolina Herrera", occasion: "Tarde / Champagne", family: "Floral Frutal" },
+    { code: "D0258", name: "212 VIP Rose Elixir", brand: "Carolina Herrera", occasion: "Noche / Chispeante", family: "Chipre Floral" },
+    { code: "C0040", name: "Bad Boy", brand: "Carolina Herrera", occasion: "Noche / Moderno", family: "Ámbar Especiada" },
+    { code: "C0039", name: "Bad Boy Cobalt", brand: "Carolina Herrera", occasion: "Tarde / Eléctrico", family: "Amaderada Aromática" },
+    { code: "C0260", name: "Bad Boy Extreme", brand: "Carolina Herrera", occasion: "Invierno / Fuerte", family: "Ámbar" },
+    { code: "D0043", name: "CH", brand: "Carolina Herrera", occasion: "Día / Elegante", family: "Ámbar Floral" },
+    { code: "C0059", name: "CH Men", brand: "Carolina Herrera", occasion: "Citas / Dulce", family: "Ámbar Especiada" },
+    { code: "C0060", name: "CH Men Prive", brand: "Carolina Herrera", occasion: "Noche / Cuero", family: "Cuero" },
+    { code: "D0082", name: "Good Girl", brand: "Carolina Herrera", occasion: "Noche / Tacón", family: "Ámbar Floral" },
+    { code: "D0081", name: "Good Girl Blush", brand: "Carolina Herrera", occasion: "Día / Empolvado", family: "Chipre Floral" },
+    { code: "D0289", name: "Very Good Girl Elixir", brand: "Carolina Herrera", occasion: "Noche / Intenso", family: "Oriental Floral" },
+    { code: "D0182", name: "Very Good Girl", brand: "Carolina Herrera", occasion: "Tarde / Rojo", family: "Floral Frutal" },
+    { code: "C0157", name: "Santos", brand: "Cartier", occasion: "Clásico / Maduro", family: "Ámbar Amaderada" },
+    { code: "D0132", name: "Must de Cartier", brand: "Cartier", occasion: "Clásico / Elegante", family: "Ámbar" },
+    { code: "C0027", name: "Allure", brand: "Chanel", occasion: "Clásico / Lujo", family: "Ámbar Amaderada" },
+    { code: "C0028", name: "Allure Homme Sport", brand: "Chanel", occasion: "Día / Sport", family: "Amaderada Especiada" },
+    { code: "C0043", name: "Bleu de Chanel", brand: "Chanel", occasion: "Versátil / Rey", family: "Amaderada Aromática" },
+    { code: "C0229", name: "Bleu de Chanel Parfum", brand: "Chanel", occasion: "Noche / Denso", family: "Amaderada Aromática" },
+    { code: "D0044", name: "Chance", brand: "Chanel", occasion: "Día / Oficina", family: "Chipre Floral" },
+    { code: "D0045", name: "Chance Eau Tendre", brand: "Chanel", occasion: "Día / Suave", family: "Floral Frutal" },
+    { code: "D0046", name: "Chanel No 5", brand: "Chanel", occasion: "Clásico / Icono", family: "Floral Aldehídica" },
+    { code: "D0050", name: "Coco", brand: "Chanel", occasion: "Noche / Opulento", family: "Ámbar Floral" },
+    { code: "D0051", name: "Coco Mademoiselle", brand: "Chanel", occasion: "Día / Sofisticado", family: "Ámbar Floral" },
+    { code: "D0052", name: "Coco Noir", brand: "Chanel", occasion: "Noche / Elegante", family: "Ámbar Amaderada" },
+    { code: "D0078", name: "Gabrielle", brand: "Chanel", occasion: "Día / Luminoso", family: "Floral" },
+    { code: "C0147", name: "Platinum Egoiste", brand: "Chanel", occasion: "Oficina / Metal", family: "Almizcle Amaderado" },
+    { code: "C0036N", name: "Aventus Cologne", brand: "Creed", occasion: "Día / Fresco", family: "Aromática Frutal" },
+    { code: "C0201N", name: "Absolu Aventus", brand: "Creed", occasion: "Especial / Lujo", family: "Amaderada Aromática" },
+    { code: "D0026N", name: "Aventus For Her", brand: "Creed", occasion: "Día / Poderosa", family: "Chipre Frutal" },
+    { code: "C0037N", name: "Aventus For Him", brand: "Creed", occasion: "Versátil / Rey", family: "Chipre Frutal" },
+    { code: "D0218N", name: "Carmina", brand: "Creed", occasion: "Noche / Cereza", family: "Almizcle Floral" },
+    { code: "U0140N", name: "Centaurus", brand: "Creed", occasion: "Noche / Nicho", family: "Oriental Especiada" },
+    { code: "C0220N", name: "Himalaya", brand: "Creed", occasion: "Día / Nieve", family: "Ámbar Amaderada" },
+    { code: "U0032N", name: "Millesime Imperial", brand: "Creed", occasion: "Verano / Salado", family: "Almizcle Amaderado" },
+    { code: "D0261N", name: "Queen of Silk", brand: "Creed", occasion: "Noche / Seda", family: "Oriental Floral" },
+    { code: "U0041N", name: "Santal", brand: "Creed", occasion: "Formal / Madera", family: "Ámbar Amaderada" },
+    { code: "U0043N", name: "Silver Mountain Water", brand: "Creed", occasion: "Día / Hielo", family: "Aromática" },
+    { code: "D0215N", name: "Spring Flower 2023", brand: "Creed", occasion: "Primavera / Floral", family: "Floral Frutal" },
+    { code: "U0049N", name: "Virgin Island Water", brand: "Creed", occasion: "Playa / Coco", family: "Cítrica" },
+    { code: "C0064", name: "Cool Water", brand: "Davidoff", occasion: "Día / Mar", family: "Aromática Acuática" },
+    { code: "D0053", name: "Cool Water Woman", brand: "Davidoff", occasion: "Día / Mar", family: "Floral Acuática" },
+    { code: "C0087", name: "Fuel For Life Homme", brand: "Diesel", occasion: "Diario / Joven", family: "Aromática Fougère" },
+    { code: "C0139", name: "Only The Brave", brand: "Diesel", occasion: "Diario / Puño", family: "Oriental Amaderada" },
+    { code: "C0255", name: "Dior Homme Parfum", brand: "Dior", occasion: "Noche / Cuero", family: "Oriental" },
+    { code: "C0067", name: "Dior Homme Intense", brand: "Dior", occasion: "Noche / Iris", family: "Almizcle Amaderado" },
+    { code: "C0082", name: "Fahrenheit", brand: "Dior", occasion: "Noche / Gasolina", family: "Aromática Fougère" },
+    { code: "D0092", name: "Hypnotic Poison", brand: "Dior", occasion: "Citas / Vainilla", family: "Ámbar Vainilla" },
+    { code: "D0095", name: "J'adore", brand: "Dior", occasion: "Día / Floral", family: "Floral Frutal" },
+    { code: "D0122", name: "Miss Dior Blooming Bouquet", brand: "Dior", occasion: "Primavera / Novia", family: "Floral" },
+    { code: "D0121", name: "Miss Dior Absolutely Blooming", brand: "Dior", occasion: "Tarde / Dulce", family: "Floral Frutal" },
+    { code: "D0287", name: "Miss Dior Parfum 2024", brand: "Dior", occasion: "Día / Intenso", family: "Chipre Floral" },
+    { code: "D0148", name: "Poison", brand: "Dior", occasion: "Noche / Bruja", family: "Ámbar Floral" },
+    { code: "C0158", name: "Sauvage", brand: "Dior", occasion: "Versátil / Popular", family: "Ámbar Fougère" },
+    { code: "C0159", name: "Sauvage Elixir", brand: "Dior", occasion: "Invierno / Potente", family: "Aromática" },
+    { code: "C0264", name: "Sauvage Eau Forte", brand: "Dior", occasion: "Día / Agua", family: "Aromática Fougère" },
+    { code: "U0123N", name: "Tobacolor", brand: "Dior", occasion: "Noche / Humo", family: "Oriental" },
+    { code: "D0214", name: "Devotion", brand: "Dolce & Gabbana", occasion: "Día / Panettone", family: "Ámbar Vainilla" },
+    { code: "C0069", name: "Dolce & Gabbana Pour Homme", brand: "Dolce & Gabbana", occasion: "Clásico / Italiano", family: "Aromática Fougère" },
+    { code: "C0235", name: "K Eau de Parfum Intense", brand: "Dolce & Gabbana", occasion: "Noche / Moderno", family: "Cuero" },
+    { code: "D0112", name: "Light Blue", brand: "Dolce & Gabbana", occasion: "Verano / Limón", family: "Floral Frutal" },
+    { code: "C0129", name: "Light Blue Pour Homme", brand: "Dolce & Gabbana", occasion: "Verano / Costa", family: "Cítrica Aromática" },
+    { code: "D0151", name: "Q by Dolce & Gabbana", brand: "Dolce & Gabbana", occasion: "Día / Cereza", family: "Aromática Frutal" },
+    { code: "C0168", name: "The One For Men", brand: "Dolce & Gabbana", occasion: "Citas / Tabaco", family: "Amaderada Especiada" },
+    { code: "D0169", name: "The One", brand: "Dolce & Gabbana", occasion: "Noche / Elegante", family: "Ámbar Floral" },
+    { code: "D0059", name: "DKNY Be Delicious", brand: "Donna Karan", occasion: "Día / Manzana", family: "Floral Frutal" },
+    { code: "D0013", name: "5th Avenue", brand: "Elizabeth Arden", occasion: "Día / Ciudad", family: "Floral" },
+    { code: "D0155", name: "Red Door", brand: "Elizabeth Arden", occasion: "Clásico / Puerta", family: "Ámbar Floral" },
+    { code: "D0162", name: "Sunflowers", brand: "Elizabeth Arden", occasion: "Día / Sol", family: "Floral Frutal" },
+    { code: "D0231", name: "Brisa Cubana", brand: "Escada", occasion: "Verano / Playa", family: "Floral Frutal" },
+    { code: "D0204", name: "Santorini Sunrise", brand: "Escada", occasion: "Verano / Fresco", family: "Floral Frutal" },
+    { code: "U0033N", name: "Molecule 01", brand: "Escentric Molecules", occasion: "Diario / Minimal", family: "Almizcle Amaderado" },
+    { code: "U0104N", name: "Blue Talisman", brand: "Ex Nihilo", occasion: "Día / Fresco", family: "Ámbar Amaderada" },
+    { code: "U0122N", name: "Chandigarh Express", brand: "Ex Nihilo", occasion: "Nicho / Viaje", family: "Oriental Amaderada" },
+    { code: "U0108N", name: "Fleur Narcotique", brand: "Ex Nihilo", occasion: "Día / Adictivo", family: "Floral Frutal" },
+    { code: "C0084", name: "Ferrari Black", brand: "Ferrari", occasion: "Diario / Coche", family: "Aromática Fougère" },
+    { code: "D0263N", name: "Lipstick Rose", brand: "Frederic Malle", occasion: "Vintage / Labial", family: "Floral" },
+    { code: "D0262N", name: "Portrait of a Lady", brand: "Frederic Malle", occasion: "Noche / Rosa", family: "Oriental Floral" },
+    { code: "U0127N", name: "Promise", brand: "Frederic Malle", occasion: "Noche / Intenso", family: "Oriental Floral" },
+    { code: "C0091", name: "Grey Flannel", brand: "Geoffrey Beene", occasion: "Clásico / Violeta", family: "Ámbar Amaderada" },
+    { code: "U0107N", name: "Bianco Latte", brand: "Giardini Di Toscana", occasion: "Invierno / Leche", family: "Ámbar Vainilla" },
+    { code: "D0018", name: "Amarige", brand: "Givenchy", occasion: "Clásico / Boda", family: "Floral" },
+    { code: "D0022", name: "Ange ou Demon", brand: "Givenchy", occasion: "Noche / Dual", family: "Ámbar Floral" },
+    { code: "C0045", name: "Blue Label", brand: "Givenchy", occasion: "Verano / Sport", family: "Amaderada Especiada" },
+    { code: "C0088", name: "Gentleman (1974)", brand: "Givenchy", occasion: "Retro / Miel", family: "Amaderada Aromática" },
+    { code: "C0183", name: "Gentleman Reserve Privee", brand: "Givenchy", occasion: "Noche / Whisky", family: "Ámbar Vainilla" },
+    { code: "C0238", name: "Gentleman Society", brand: "Givenchy", occasion: "Noche / Floral Masc.", family: "Amaderada Aromática" },
+    { code: "D0094", name: "Irresistible", brand: "Givenchy", occasion: "Día / Baile", family: "Floral Frutal" },
+    { code: "D0103", name: "L'Interdit", brand: "Givenchy", occasion: "Noche / Prohibido", family: "Floral Aldehídica" },
+    { code: "D0192", name: "Organza", brand: "Givenchy", occasion: "Clásico / Diosa", family: "Ámbar Floral" },
+    { code: "C0146", name: "Pi", brand: "Givenchy", occasion: "Invierno / Matemático", family: "Ámbar Amaderada" },
+    { code: "D0085", name: "Gucci Bloom", brand: "Gucci", occasion: "Primavera / Jardín", family: "Floral" },
+    { code: "C0092", name: "Gucci Guilty Pour Homme", brand: "Gucci", occasion: "Día / Versátil", family: "Amaderada Aromática" },
+    { code: "D0278", name: "Gucci Guilty Elixir", brand: "Gucci", occasion: "Noche / Intenso", family: "Oriental Floral" },
+    { code: "C0186", name: "L'Homme Ideal Platine Prive", brand: "Guerlain", occasion: "Día / Almendra", family: "Amaderada" },
+    { code: "D0159", name: "Samsara", brand: "Guerlain", occasion: "Noche / Karma", family: "Ámbar Amaderada" },
+    { code: "D0163", name: "Shalimar", brand: "Guerlain", occasion: "Clásico / Oriente", family: "Ámbar Especiada" },
+    { code: "U0136N", name: "Tobacco Honey", brand: "Guerlain", occasion: "Invierno / Miel", family: "Oriental Amaderada" },
+    { code: "C0177", name: "Vetiver", brand: "Guerlain", occasion: "Día / Tierra", family: "Amaderada Aromática" },
+    { code: "C0094", name: "Halloween Man", brand: "Halloween (J. Del Pozo)", occasion: "Noche / Joven", family: "Ámbar Amaderada" },
+    { code: "C0095", name: "Halloween Man X", brand: "Halloween (J. Del Pozo)", occasion: "Noche / Café", family: "Ámbar Fougère" },
+    { code: "D0089", name: "Halloween", brand: "Halloween (J. Del Pozo)", occasion: "Día / Violeta", family: "Floral Acuática" },
+    { code: "C0047", name: "Boss Bottled", brand: "Hugo Boss", occasion: "Oficina / Manzana", family: "Amaderada Especiada" },
+    { code: "C0055", name: "Boss The Scent", brand: "Hugo Boss", occasion: "Citas / Jengibre", family: "Aromática Especiada" },
+    { code: "C0099", name: "Hugo", brand: "Hugo Boss", occasion: "Día / Verde", family: "Aromática Verde" },
+    { code: "C0103", name: "Hugo XY", brand: "Hugo Boss", occasion: "Día / Fresco", family: "Amaderada Aromática" },
+    { code: "U0102N", name: "High Frequency", brand: "Initio Parfums", occasion: "Nicho / Floral", family: "Floral" },
+    { code: "U0117N", name: "Narcotic Delight", brand: "Initio Parfums", occasion: "Noche / Cereza", family: "Oriental Vainilla" },
+    { code: "U0097N", name: "Side Effect", brand: "Initio Parfums", occasion: "Noche / Tabaco", family: "Ámbar" },
+    { code: "U0092N", name: "Oud for Greatness", brand: "Initio Parfums", occasion: "Noche / Poder", family: "Amaderada Especiada" },
+    { code: "C0212", name: "L'Eau d'Issey Pour Homme", brand: "Issey Miyake", occasion: "Día / Zen", family: "Amaderada Acuática" },
+    { code: "D0014", name: "A Drop d'Issey", brand: "Issey Miyake", occasion: "Día / Lila", family: "Floral" },
+    { code: "D0102", name: "L'Eau d'Issey", brand: "Issey Miyake", occasion: "Día / Agua", family: "Floral Acuática" },
+    { code: "C0205N", name: "The Omniscient Mr Thompson", brand: "Penhaligon's", occasion: "Nicho / Iris", family: "Ámbar Floral" },
+    { code: "C0123", name: "Le Beau", brand: "Jean Paul Gaultier", occasion: "Verano / Coco", family: "Amaderada Aromática" },
+    { code: "C0227", name: "Le Beau Paradise Garden", brand: "Jean Paul Gaultier", occasion: "Verano / Tropical", family: "Verde Acuático" },
+    { code: "C0124", name: "Le Male", brand: "Jean Paul Gaultier", occasion: "Clásico / Marinero", family: "Ámbar Fougère" },
+    { code: "C0253", name: "Le Male Elixir", brand: "Jean Paul Gaultier", occasion: "Noche / Miel", family: "Amaderada Aromática" },
+    { code: "C0160", name: "Scandal Pour Homme", brand: "Jean Paul Gaultier", occasion: "Noche / Corona", family: "Ámbar Amaderada" },
+    { code: "D0160", name: "Scandal", brand: "Jean Paul Gaultier", occasion: "Noche / Miel", family: "Chipre Floral" },
+    { code: "D0205", name: "Gaultier Divine", brand: "Jean Paul Gaultier", occasion: "Verano / Merengue", family: "Ámbar Floral" },
+    { code: "D0282", name: "La Belle Paradise Garden", brand: "Jean Paul Gaultier", occasion: "Verano / Exótico", family: "Floral" },
+    { code: "D0097", name: "La Belle", brand: "Jean Paul Gaultier", occasion: "Citas / Pera", family: "Ámbar Vainilla" },
+    { code: "D0079", name: "Glow", brand: "Jennifer Lopez", occasion: "Día / Limpio", family: "Floral" },
+    { code: "C0108", name: "Jovan Musk For Men", brand: "Jovan", occasion: "Clásico / Musk", family: "Almizcle Floral Amad." },
+    { code: "D0103NA", name: "Lamar", brand: "Kajal", occasion: "Noche / Piña", family: "Ámbar Floral" },
+    { code: "U0064N", name: "Eden Juicy Apple", brand: "Kayali", occasion: "Día / Manzana", family: "Floral Frutal G." },
+    { code: "U0062N", name: "Vanilla 28", brand: "Kayali", occasion: "Noche / Layering", family: "Ámbar Vainilla" },
+    { code: "U0054N", name: "Yum Pistachio Gelato", brand: "Kayali", occasion: "Día / Postre", family: "Ámbar" },
+    { code: "U0124N", name: "Vanilla Candy Rock Sugar", brand: "Kayali", occasion: "Día / Dulce", family: "Floral Frutal G." },
+    { code: "D0077", name: "Flower", brand: "Kenzo", occasion: "Día / Amapola", family: "Ámbar Floral" },
+    { code: "C0116", name: "Lacoste Blanc (L.12.12)", brand: "Lacoste", occasion: "Día / Polo", family: "Amaderada Aromática" },
+    { code: "C0077", name: "Lacoste Essential", brand: "Lacoste", occasion: "Día / Verde", family: "Amaderada Aromática" },
+    { code: "D0172", name: "Touch of Pink", brand: "Lacoste", occasion: "Día / Joven", family: "Floral Frutal" },
+    { code: "C0118", name: "Lacoste Red", brand: "Lacoste", occasion: "Día / Frutas", family: "Aromática Fougère" },
+    { code: "D0104", name: "La Vie Est Belle", brand: "Lancome", occasion: "Noche / Éxito", family: "Floral Frutal G." },
+    { code: "D0195", name: "Idole Now", brand: "Lancome", occasion: "Día / Rosa", family: "Ámbar Floral" },
+    { code: "D0091", name: "Idole", brand: "Lancome", occasion: "Día / Fino", family: "Chipre Floral" },
+    { code: "D0174", name: "Tresor", brand: "Lancome", occasion: "Clásico / Amor", family: "Ámbar Floral" },
+    { code: "C0263NA", name: "Asad", brand: "Lattafa", occasion: "Noche / Especias", family: "Oriental" },
+    { code: "U0110NA", name: "Bade'e Al Oud Amethyst", brand: "Lattafa", occasion: "Noche / Rosa", family: "Ámbar Vainilla" },
+    { code: "U0125NA", name: "Bade'e Al Oud Oud for Glory", brand: "Lattafa", occasion: "Noche / Oud", family: "Oriental Amaderada" },
+    { code: "U0126NA", name: "Khamrah", brand: "Lattafa", occasion: "Invierno / Dátiles", family: "Aromática Especiada" },
+    { code: "D0254NA", name: "Yara", brand: "Lattafa", occasion: "Día / Viral", family: "Ámbar Vainilla" },
+    { code: "D0255NA", name: "Yara Tous", brand: "Lattafa", occasion: "Verano / Mango", family: "Frutal" },
+    { code: "D0291NA", name: "Yara Candy", brand: "Lattafa", occasion: "Día / Golosina", family: "Floral Frutal" },
+    { code: "D0292NA", name: "Yara Moi", brand: "Lattafa", occasion: "Tarde / Caramelo", family: "Floral Frutal" },
+    { code: "U0007N", name: "Another 13", brand: "Le Labo", occasion: "Diario / Piel", family: "Ámbar Amaderada" },
+    { code: "U0012N", name: "Bergamote 22", brand: "Le Labo", occasion: "Verano / Fresco", family: "Amaderada Aromática" },
+    { code: "U0040N", name: "Santal 33", brand: "Le Labo", occasion: "Diario / Hipster", family: "Amaderada Aromática" },
+    { code: "U0045N", name: "The Matcha 26", brand: "Le Labo", occasion: "Relax / Té", family: "Cítrica Aromática" },
+    { code: "C0191N", name: "Imagination", brand: "Louis Vuitton", occasion: "Verano / Té", family: "Cítrica Aromática" },
+    { code: "C0113N", name: "L'Immensite", brand: "Louis Vuitton", occasion: "Primavera / Jengibre", family: "Ámbar Especiada" },
+    { code: "U0036N", name: "Ombre Nomade", brand: "Louis Vuitton", occasion: "Noche / Oud", family: "Ámbar Amaderada" },
+    { code: "U0063N", name: "Pacific Chill", brand: "Louis Vuitton", occasion: "Verano / Smoothie", family: "Aromática Frutal" },
+    { code: "U0003N", name: "Afternoon Swim", brand: "Louis Vuitton", occasion: "Verano / Naranja", family: "Cítrica" },
+    { code: "U0055N", name: "Aqua Media Cologne Forte", brand: "MFK (Kurkdjian)", occasion: "Día / Verde", family: "Aromática Fougère" },
+    { code: "U0010N", name: "Baccarat Rouge 540", brand: "MFK (Kurkdjian)", occasion: "Noche / Lujo", family: "Ámbar Floral" },
+    { code: "U0089N", name: "Oud Satin Mood", brand: "MFK (Kurkdjian)", occasion: "Noche / Gala", family: "Ámbar Amaderada" },
+    { code: "C0244N", name: "Jazz Club", brand: "Maison Margiela", occasion: "Noche / Club", family: "Cuero" },
+    { code: "U0017N", name: "By The Fireplace", brand: "Maison Margiela", occasion: "Invierno / Hoguera", family: "Amaderada" },
+    { code: "U0019N", name: "Cedrat Boise", brand: "Mancera", occasion: "Versátil / Frutal", family: "Cítrica Aromática" },
+    { code: "U0039N", name: "Red Tobacco", brand: "Mancera", occasion: "Invierno / Bestia", family: "Amaderada Especiada" },
+    { code: "U0115N", name: "Amberful", brand: "Mancera", occasion: "Tarde / Ambar", family: "Oriental" },
+    { code: "U0116N", name: "Amore Caffe", brand: "Mancera", occasion: "Invierno / Café", family: "Gourmand Especiado" },
+    { code: "D0055", name: "Daisy", brand: "Marc Jacobs", occasion: "Día / Campo", family: "Almizcle Floral Amad." },
+    { code: "D0145", name: "Perfect", brand: "Marc Jacobs", occasion: "Día / Alegre", family: "Ámbar Floral" },
+    { code: "D0199", name: "Cry Baby Perfume Milk", brand: "Melanie Martinez", occasion: "Nicho / Leche", family: "Ámbar Vainilla" },
+    { code: "U0105N", name: "Cappadocia", brand: "Memo Paris", occasion: "Viaje / Azafrán", family: "Ámbar Especiada" },
+    { code: "C0081", name: "Explorer", brand: "Montblanc", occasion: "Versátil / Aventura", family: "Amaderada Aromática" },
+    { code: "C0126", name: "Legend", brand: "Montblanc", occasion: "Diario / Negro", family: "Cuero" },
+    { code: "C0164", name: "Starwalker", brand: "Montblanc", occasion: "Verano / Bambú", family: "Amaderada Especiada" },
+    { code: "C0170", name: "Toy Boy", brand: "Moschino", occasion: "Noche / Oso", family: "Amaderada Especiada" },
+    { code: "D0173", name: "Toy 2 Bubble Gum", brand: "Moschino", occasion: "Día / Chicle", family: "Floral Frutal" },
+    { code: "U0099", name: "Toy 2 Pearl", brand: "Moschino", occasion: "Día / Fresco", family: "Floral Frutal" },
+    { code: "C0173", name: "Uomo?", brand: "Moschino", occasion: "Clásico / Italiano", family: "Almizcle Amaderado" },
+    { code: "D0017", name: "Alien", brand: "Mugler", occasion: "Noche / Jazmín", family: "Ámbar Amaderada" },
+    { code: "D0023", name: "Angel", brand: "Mugler", occasion: "Invierno / Pachulí", family: "Ámbar Vainilla" },
+    { code: "U0008N", name: "Apres L'Amour 4", brand: "Thomas Kosmala", occasion: "Noche / Piel", family: "Amaderada Aromática" },
+    { code: "U0011N", name: "Baraonda", brand: "Nasomatto", occasion: "Noche / Licor", family: "Ámbar Floral" },
+    { code: "U0014N", name: "Black Afgano", brand: "Nasomatto", occasion: "Noche / Humo", family: "Amaderada Aromática" },
+    { code: "C0136", name: "Nautica Voyage", brand: "Nautica", occasion: "Verano / Barco", family: "Amaderada Acuática" },
+    { code: "D0016", name: "Aires del Tiempo", brand: "Nina Ricci", occasion: "Clásico / Paz", family: "Floral" },
+    { code: "D0136", name: "Nina", brand: "Nina Ricci", occasion: "Día / Manzana", family: "Floral Frutal" },
+    { code: "U0077N", name: "Ani", brand: "Nishane", occasion: "Invierno / Vainilla", family: "Ámbar Floral" },
+    { code: "U0026N", name: "Hacivat", brand: "Nishane", occasion: "Verano / Piña", family: "Chipre" },
+    { code: "D0227NA", name: "Velvet Gold", brand: "Orientica", occasion: "Noche / Lujo", family: "Floral" },
+    { code: "U0088NA", name: "Amber Rouge", brand: "Orientica", occasion: "Noche / Rojo", family: "Amaderada Especiada" },
+    { code: "U0081N", name: "Megamare", brand: "Orto Parisi", occasion: "Verano / Océano", family: "Aromática Acuática" },
+    { code: "U0132N", name: "Stercus", brand: "Orto Parisi", occasion: "Nicho / Animal", family: "Almizcle Amaderado" },
+    { code: "C0001", name: "1 Million", brand: "Paco Rabanne", occasion: "Noche / Club", family: "Amaderada Especiada" },
+    { code: "C0002", name: "1 Million Elixir", brand: "Paco Rabanne", occasion: "Noche / Intenso", family: "Amaderada Aromática" },
+    { code: "C0006", name: "1 Million Royal", brand: "Paco Rabanne", occasion: "Noche / Elegante", family: "Ámbar Amaderada" },
+    { code: "C0105", name: "Invictus", brand: "Paco Rabanne", occasion: "Verano / Victoria", family: "Amaderada Acuática" },
+    { code: "C0239", name: "Invictus Victory Elixir", brand: "Paco Rabanne", occasion: "Noche / Ámbar", family: "Ámbar Amaderada" },
+    { code: "D0108", name: "Lady Million", brand: "Paco Rabanne", occasion: "Noche / Oro", family: "Floral Frutal" },
+    { code: "D0137", name: "Olympea", brand: "Paco Rabanne", occasion: "Día / Diosa", family: "Ámbar Floral" },
+    { code: "C0145", name: "Phantom", brand: "Paco Rabanne", occasion: "Noche / Robot", family: "Amaderada Aromática" },
+    { code: "D0072", name: "Fame", brand: "Paco Rabanne", occasion: "Día / Mango", family: "Almizcle Floral" },
+    { code: "C0133", name: "Minotaure", brand: "Paloma Picasso", occasion: "Clásico / Retro", family: "Ámbar" },
+    { code: "D0141", name: "Paloma Picasso", brand: "Paloma Picasso", occasion: "Clásico / Fuerte", family: "Chipre Floral" },
+    { code: "C0197N", name: "Althair", brand: "Parfums de Marly", occasion: "Invierno / Bourbon", family: "Ámbar Vainilla" },
+    { code: "D0058N", name: "Delina", brand: "Parfums de Marly", occasion: "Día / Rosa", family: "Floral" },
+    { code: "D0237N", name: "Delina Exclusif", brand: "Parfums de Marly", occasion: "Noche / Rosa", family: "Ámbar" },
+    { code: "U0101N", name: "Greenley", brand: "Parfums de Marly", occasion: "Primavera / Manzana", family: "Cítrica Aromática" },
+    { code: "U0030N", name: "Layton", brand: "Parfums de Marly", occasion: "Invierno / Manzana", family: "Ámbar Floral" },
+    { code: "C0143", name: "Paris Hilton", brand: "Paris Hilton", occasion: "Día / 2000s", family: "Amaderada Aromática" },
+    { code: "D0041", name: "Can Can", brand: "Paris Hilton", occasion: "Día / Divertido", family: "Floral Frutal" },
+    { code: "D0084", name: "Heiress", brand: "Paris Hilton", occasion: "Día / Chicle", family: "Floral Frutal" },
+    { code: "C0018", name: "360 Blue", brand: "Perry Ellis", occasion: "Día / Sport", family: "Amaderada Aromática" },
+    { code: "C0020", name: "360 Red", brand: "Perry Ellis", occasion: "Verano / Canela", family: "Ámbar Especiada" },
+    { code: "D0011", name: "360", brand: "Perry Ellis", occasion: "Día / Clásico", family: "Floral" },
+    { code: "C0215", name: "Luna Rossa Black", brand: "Prada", occasion: "Noche / Urbano", family: "Ámbar Amaderada" },
+    { code: "C0131", name: "Luna Rossa Carbon", brand: "Prada", occasion: "Versátil / Carbón", family: "Aromática Fougère" },
+    { code: "D0272", name: "Paradoxe Virtual Flower", brand: "Prada", occasion: "Día / Floral", family: "Floral" },
+    { code: "D0042", name: "Candy", brand: "Prada", occasion: "Día / Caramelo", family: "Ámbar Vainilla" },
+    { code: "C0149", name: "Polo Black", brand: "Ralph Lauren", occasion: "Noche / Mango", family: "Amaderada Aromática" },
+    { code: "C0150", name: "Polo Blue", brand: "Ralph Lauren", occasion: "Verano / Azul", family: "Aromática Fougère" },
+    { code: "C0152", name: "Polo Green", brand: "Ralph Lauren", occasion: "Clásico / Pino", family: "Amaderada Chipre" },
+    { code: "C0153", name: "Polo Red Parfum", brand: "Ralph Lauren", occasion: "Noche / Rojo", family: "Amaderada Especiada" },
+    { code: "D0153", name: "Ralph", brand: "Ralph Lauren", occasion: "Día / Joven", family: "Floral Frutal" },
+    { code: "D0164", name: "Romance", brand: "Ralph Lauren", occasion: "Día / Amor", family: "Floral Frutal" },
+    { code: "C0114", name: "L'Homme Rochas", brand: "Rochas", occasion: "Noche / París", family: "Ámbar Fougère" },
+    { code: "D0165", name: "Signorina", brand: "Salvatore Ferragamo", occasion: "Día / Panacota", family: "Floral Frutal" },
+    { code: "D0161", name: "Selena Gomez", brand: "Selena Gomez", occasion: "Tarde / Dulce", family: "Floral Frutal" },
+    { code: "D0246", name: "Cheirosa 62", brand: "Sol de Janeiro", occasion: "Playa / Pistacho", family: "Vainilla" },
+    { code: "U0138N", name: "God of Fire", brand: "Stephane H. Lucas", occasion: "Verano / Mango", family: "Oriental Amaderada" },
+    { code: "U0015N", name: "Black Orchid", brand: "Tom Ford", occasion: "Noche / Oscuro", family: "Ámbar Floral" },
+    { code: "U0020N", name: "Cherry Smoke", brand: "Tom Ford", occasion: "Noche / Cereza", family: "Ámbar Especiada" },
+    { code: "U0031N", name: "Lost Cherry", brand: "Tom Ford", occasion: "Citas / Licor", family: "Ámbar Floral" },
+    { code: "U0078N", name: "Noir de Noir", brand: "Tom Ford", occasion: "Noche / Rosa", family: "Chipre" },
+    { code: "U0035N", name: "Ombre Leather", brand: "Tom Ford", occasion: "Noche / Cuero", family: "Cuero" },
+    { code: "U0038N", name: "Oud Wood", brand: "Tom Ford", occasion: "Formal / Oud", family: "Ámbar Amaderada" },
+    { code: "U0046N", name: "Tobacco Vanille", brand: "Tom Ford", occasion: "Invierno / Pipa", family: "Ámbar Especiada" },
+    { code: "U0142N", name: "Amber Intrigue", brand: "Tom Ford", occasion: "Noche / Misterio", family: "Oriental Especiada" },
+    { code: "U0091N", name: "Vanilla Sex", brand: "Tom Ford", occasion: "Noche / Sensual", family: "Ámbar Vainilla" },
+    { code: "C0169", name: "Tommy", brand: "Tommy Hilfiger", occasion: "Día / 90s", family: "Cítrica Aromática" },
+    { code: "D0170", name: "Tommy Girl", brand: "Tommy Hilfiger", occasion: "Día / Fresco", family: "Floral Frutal" },
+    { code: "D0216", name: "LoveMe", brand: "Tous", occasion: "Día / Oso", family: "Floral Frutal" },
+    { code: "C0254", name: "Born In Roma Extradose", brand: "Valentino", occasion: "Noche / Roma", family: "Aromática Fougère" },
+    { code: "D0062", name: "Donna Born In Roma", brand: "Valentino", occasion: "Noche / Jazmín", family: "Ámbar Floral" },
+    { code: "C0174", name: "Valentino Uomo", brand: "Valentino", occasion: "Invierno / Avellana", family: "Cuero" },
+    { code: "C0190", name: "Uomo Born in Roma Coral Fantasy", brand: "Valentino", occasion: "Tarde / Manzana", family: "Amaderada Aromática" },
+    { code: "C0221", name: "Uomo Born In Roma", brand: "Valentino", occasion: "Noche / Urbano", family: "Amaderada Especiada" },
+    { code: "C0256", name: "Uomo Born In Roma Intense", brand: "Valentino", occasion: "Noche / Vainilla", family: "Oriental Vainilla" },
+    { code: "C0175", name: "Versace Man Eau Fraiche", brand: "Versace", occasion: "Verano / Limón", family: "Amaderada Acuática" },
+    { code: "C0074", name: "Eros", brand: "Versace", occasion: "Noche / Fiesta", family: "Ámbar Fougère" },
+    { code: "C0075", name: "Eros Flame", brand: "Versace", occasion: "Invierno / Cítrico", family: "Amaderada Especiada" },
+    { code: "D0036", name: "Bright Crystal", brand: "Versace", occasion: "Día / Cristal", family: "Floral Frutal" },
+    { code: "C0167", name: "The Dreamer", brand: "Versace", occasion: "Noche / Sueño", family: "Aromática Fougère" },
+    { code: "C0176", name: "Versace Pour Homme", brand: "Versace", occasion: "Día / Oficina", family: "Aromática Fougère" },
+    { code: "D0065", name: "Dylan Blue Pour Femme", brand: "Versace", occasion: "Día / Fuerte", family: "Floral Frutal" },
+    { code: "D0117", name: "Love Spell", brand: "Victoria's Secret", occasion: "Día / Bruma", family: "Floral Frutal" },
+    { code: "D0179", name: "Vanilla Lace", brand: "Victoria's Secret", occasion: "Diario / Dulce", family: "Ámbar Vainilla" },
+    { code: "C0162", name: "Spicebomb", brand: "Viktor & Rolf", occasion: "Invierno / Especias", family: "Amaderada Especiada" },
+    { code: "D0076", name: "Flowerbomb", brand: "Viktor & Rolf", occasion: "Tarde / Explosión", family: "Oriental Floral" },
+    { code: "U0025N", name: "Erba Pura", brand: "Xerjoff", occasion: "Verano / Frutas", family: "Ámbar" },
+    { code: "U0141N", name: "Naxos", brand: "Xerjoff", occasion: "Invierno / Miel", family: "Cítrica Gourmand" },
+    { code: "U0083N", name: "Torino 22", brand: "Xerjoff", occasion: "Sport / Tenis", family: "Amaderada Aromática" },
+    { code: "U0072N", name: "Alexandria II", brand: "Xerjoff", occasion: "Noche / Oud", family: "Ámbar Amaderada" },
+    { code: "D0030", name: "Black Opium", brand: "YSL", occasion: "Noche / Café", family: "Ámbar Vainilla" },
+    { code: "C0115", name: "La Nuit de L'Homme", brand: "YSL", occasion: "Citas / Cardamomo", family: "Amaderada Especiada" },
+    { code: "D0190", name: "Libre", brand: "YSL", occasion: "Día / Lavanda", family: "Ámbar Fougère" },
+    { code: "C0179", name: "Y Eau de Parfum", brand: "YSL", occasion: "Versátil / Manzana", family: "Amaderada Aromática" },
+    { code: "U0139N", name: "Tuxedo", brand: "YSL", occasion: "Noche / Smoking", family: "Chipre" },
+    { code: "C0178", name: "Y Eau de Parfum Intense", brand: "YSL", occasion: "Noche / Azul", family: "Aromática Fougère" },
+    { code: "D0209N", name: "This is Her", brand: "Zadig & Voltaire", occasion: "Diario / Rock", family: "Ámbar Vainilla" },
+    { code: "C0198N", name: "This is Him", brand: "Zadig & Voltaire", occasion: "Noche / Incienso", family: "Ámbar Amaderada" }
   ];
 
   // Estado
@@ -586,20 +966,32 @@
   searchInput.addEventListener('input', () => {
     const q = searchInput.value.toLowerCase().trim();
     if (!q) { searchResults.classList.remove('visible'); return; }
+    
     const matches = AROMAS.filter(a => 
-      a.name.toLowerCase().includes(q) || 
-      a.category.toLowerCase().includes(q)
+      a.code.toLowerCase().includes(q) ||
+      a.name.toLowerCase().includes(q) ||
+      a.brand.toLowerCase().includes(q) ||
+      a.occasion.toLowerCase().includes(q) ||
+      a.family.toLowerCase().includes(q)
     );
+    
     searchResults.innerHTML = matches.length === 0
       ? `<div class="search-result-item"><span class="aroma-name" style="color:var(--muted)">Sin resultados para "${q}"</span></div>`
       : matches.map(a => {
           const idx = AROMAS.indexOf(a);
           return `<div class="search-result-item" onclick="selectAromaById(${idx})">
-            <span class="aroma-icon">${a.emoji}</span>
-            <span class="aroma-name">${a.name}</span>
-            <span class="aroma-category">${a.category}</span>
+            <span class="aroma-code">${a.code}</span>
+            <div class="aroma-info">
+              <div class="aroma-name">${a.name}</div>
+              <div class="aroma-meta">
+                <span>${a.brand}</span>
+                <span>${a.family}</span>
+                <span>${a.occasion}</span>
+              </div>
+            </div>
           </div>`;
         }).join('');
+    
     searchResults.classList.add('visible');
   });
 
@@ -614,11 +1006,15 @@
     state.selectedAroma = aroma;
     searchInput.value = '';
     searchResults.classList.remove('visible');
-    document.getElementById('tag-emoji').textContent = aroma.emoji;
-    document.getElementById('tag-name').textContent = aroma.name;
-    document.getElementById('tag-category').textContent = aroma.category;
+    
+    document.getElementById('tag-emoji').textContent = '🧴';
+    document.getElementById('tag-name').innerHTML = `
+      <span class="aroma-code-badge">${aroma.code}</span> ${aroma.name}
+    `;
+    document.getElementById('tag-category').textContent = `${aroma.brand} · ${aroma.family}`;
     document.getElementById('selected-aroma-tag').classList.add('visible');
-    showToast(`${aroma.emoji} "${aroma.name}" seleccionado`);
+    
+    showToast(`🧴 ${aroma.code} "${aroma.name}" seleccionado`);
   }
 
   function clearAroma() {
@@ -649,8 +1045,8 @@
     if (!state.selectedAroma) { showToast('⚠️ Por favor elige un aroma primero'); return; }
     const unitPrice = state.selectedPrice + (state.withFeromonas ? 60 : 0);
     state.cartItems.push({
-      aroma: state.selectedAroma.name,
-      emoji: state.selectedAroma.emoji,
+      aromaCode: state.selectedAroma.code,
+      aromaName: state.selectedAroma.name,
       size: state.selectedSize,
       feromonas: state.withFeromonas,
       quantity: state.quantity,
@@ -658,7 +1054,7 @@
       total: unitPrice * state.quantity
     });
     updateCartSummary();
-    showToast(`✓ ${state.selectedAroma.emoji} ${state.selectedAroma.name} ${state.selectedSize} ×${state.quantity} añadido`);
+    showToast(`✓ ${state.selectedAroma.code} ${state.selectedAroma.name} ${state.selectedSize} ×${state.quantity} añadido`);
   }
 
   function clearCart() { state.cartItems = []; updateCartSummary(); showToast('🗑 Carrito vaciado'); }
@@ -670,7 +1066,7 @@
     }
     const total = state.cartItems.reduce((s, i) => s + i.total, 0);
     document.getElementById('cart-items-list').innerHTML = state.cartItems.map(item =>
-      `<div class="cart-item"><span>${item.emoji} ${item.aroma} ${item.size}${item.feromonas ? ' + Feromonas' : ''} ×${item.quantity}</span><span>$${item.total.toFixed(2)}</span></div>`
+      `<div class="cart-item"><span>${item.aromaCode} ${item.aromaName} ${item.size}${item.feromonas ? ' + Feromonas' : ''} ×${item.quantity}</span><span>$${item.total.toFixed(2)}</span></div>`
     ).join('');
     document.getElementById('cart-total-price').textContent = `$${total.toFixed(2)}`;
     document.getElementById('cart-summary').classList.add('visible');
@@ -683,7 +1079,7 @@
     const hora  = new Date().toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' });
     let msg = `🌸 *NUEVO PEDIDO — Aion Perfumes*\n📅 ${fecha} a las ${hora}\n━━━━━━━━━━━━━━━━━━━━━\n\n`;
     state.cartItems.forEach((item, i) => {
-      msg += `*${i + 1}. ${item.emoji} ${item.aroma}*\n   📦 Tamaño: ${item.size}\n   🧪 Feromonas: ${item.feromonas ? 'Sí  (+$60.00)' : 'No'}\n   🔢 Cantidad: ${item.quantity}\n   💵 Subtotal: $${item.total.toFixed(2)} MXN\n\n`;
+      msg += `*${i + 1}. ${item.aromaCode} — ${item.aromaName}*\n   📦 Tamaño: ${item.size}\n   🧪 Feromonas: ${item.feromonas ? 'Sí  (+$60.00)' : 'No'}\n   🔢 Cantidad: ${item.quantity}\n   💵 Subtotal: $${item.total.toFixed(2)} MXN\n\n`;
     });
     msg += `━━━━━━━━━━━━━━━━━━━━━\n💰 *TOTAL: $${total.toFixed(2)} MXN*\n━━━━━━━━━━━━━━━━━━━━━\n\n_Por favor envíame el link de Mercado Pago para completar mi compra. ¡Gracias! 🙏_`;
     const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
