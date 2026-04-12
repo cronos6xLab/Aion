@@ -1081,7 +1081,12 @@
     state.cartItems.forEach((item, i) => {
       msg += `*${i + 1}. ${item.aromaCode} — ${item.aromaName}*\n   📦 Tamaño: ${item.size}\n   🧪 Feromonas: ${item.feromonas ? 'Sí  (+$60.00)' : 'No'}\n   🔢 Cantidad: ${item.quantity}\n   💵 Subtotal: $${item.total.toFixed(2)} MXN\n\n`;
     });
-    msg += `━━━━━━━━━━━━━━━━━━━━━\n💰 *TOTAL: $${total.toFixed(2)} MXN*\n━━━━━━━━━━━━━━━━━━━━━\n\n_Por favor envíame el link de Mercado Pago para completar mi compra. ¡Gracias! 🙏_`;
+    msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `💰 *TOTAL: $${total.toFixed(2)} MXN*\n`;
+    msg += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    msg += `📋 *Al finalizar el pago por medio de WhatsApp recibirás un formulario para llenar tus datos y dirección de entrega, o si lo prefieres también podrás enviarnos la dirección de entrega en este mismo chat.*\n\n`;
+    msg += `_Por favor envíame el link de Mercado Pago para completar mi compra. ¡Gracias! 🙏_`;
+    
     const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
     showToast('📲 Abriendo WhatsApp...');
     setTimeout(() => window.open(url, '_blank'), 600);
