@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perfume Personalizado</title>
+<title>Aion Perfumes · Personalizado</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -11,7 +11,7 @@
     --dark: #1a1612;
     --gold: #b8975a;
     --gold-light: #d4b483;
-    --muted: #4a423c;      /* oscurecido para mejor contraste */
+    --muted: #4a423c;
     --border: #ccc3b6;
     --green-wa: #25d366;
     --green-wa-dark: #128c4e;
@@ -28,7 +28,6 @@
     min-height: 100vh;
   }
 
-  /* HEADER */
   .header {
     background: var(--dark);
     padding: 18px 24px;
@@ -55,7 +54,6 @@
     padding: 0 0 130px;
   }
 
-  /* PRODUCT IMAGE */
   .product-image-wrap {
     position: relative;
     width: 100%;
@@ -85,7 +83,6 @@
     gap: 6px;
   }
 
-  /* PRODUCT INFO */
   .product-info { padding: 24px 20px 0; }
   .product-info h2 {
     font-family: 'Cormorant Garamond', serif;
@@ -110,7 +107,6 @@
     margin-bottom: 20px;
   }
 
-  /* SECTION LABEL */
   .section-label {
     font-size: 0.7rem;
     text-transform: uppercase;
@@ -120,30 +116,12 @@
     font-weight: 600;
   }
 
-  /* NOTES */
-  .notes-section { padding: 0 20px 20px; }
-  .notes-grid { display: flex; gap: 10px; flex-wrap: wrap; }
-  .note-chip {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 0.78rem;
-    color: var(--dark);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .note-chip span.icon { font-size: 1rem; }
-
-  /* DIVIDER */
   .divider {
     height: 1px;
     background: var(--border);
     margin: 4px 20px 20px;
   }
 
-  /* SEARCH */
   .search-section { padding: 0 20px 16px; }
   .search-wrap { position: relative; }
   .search-wrap input {
@@ -203,7 +181,6 @@
     letter-spacing: 1px;
   }
 
-  /* SELECTED AROMA TAG */
   .selected-aroma-tag {
     display: none;
     margin: 0 20px 16px;
@@ -229,7 +206,6 @@
     padding: 0 4px;
   }
 
-  /* SIZE */
   .size-section { padding: 0 20px 20px; }
   .size-option {
     display: flex;
@@ -276,7 +252,6 @@
     letter-spacing: 0.5px;
   }
 
-  /* FEROMONAS */
   .addon-section { padding: 0 20px 20px; }
   .addon-title { font-weight: 500; font-size: 0.9rem; margin-bottom: 2px; color: var(--dark); }
   .addon-optional { font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; }
@@ -300,7 +275,6 @@
   .addon-label { flex: 1; font-size: 0.9rem; color: var(--dark); }
   .addon-price { font-weight: 500; font-size: 0.9rem; color: var(--dark); }
 
-  /* QUANTITY */
   .quantity-section {
     padding: 0 20px 24px;
     display: flex;
@@ -333,7 +307,6 @@
     height: 44px; line-height: 44px;
   }
 
-  /* CART SUMMARY */
   .cart-summary {
     display: none;
     margin: 0 20px 16px;
@@ -383,26 +356,6 @@
   }
   .btn-clear-cart:hover { background: #fdecea; color: #8b3010; border-color: #e0b0a0; }
 
-  /* SEASONS */
-  .seasons-row { padding: 0 20px 20px; }
-  .seasons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .season-pill {
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 0.78rem;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    justify-content: center;
-    font-weight: 500;
-  }
-  .season-pill.winter { background: #dce8ff; color: #1a3570; }
-  .season-pill.spring { background: #d6f0dc; color: #1a5230; }
-  .season-pill.summer { background: #fef3c7; color: #78500a; }
-  .season-pill.autumn { background: #fde8d8; color: #8b3010; }
-
-  /* ACTION BUTTONS */
   .action-buttons {
     position: fixed;
     bottom: 0;
@@ -459,7 +412,6 @@
   .btn-wa:hover { background: var(--green-wa-dark); transform: translateY(-1px); }
   .btn-wa:active { transform: translateY(0); }
 
-  /* TOAST */
   .toast {
     position: fixed;
     top: 80px;
@@ -487,7 +439,7 @@
 <div class="toast" id="toast"></div>
 
 <div class="header">
-  <h1>✦ Parfum Maison ✦</h1>
+  <h1>✦ Aion Perfumes ✦</h1>
 </div>
 
 <div class="container">
@@ -502,27 +454,7 @@
     <div class="product-subtitle">Longevity · Strong Sillage</div>
   </div>
 
-  <div class="notes-section">
-    <div class="section-label">Notas del aroma seleccionado</div>
-    <div class="notes-grid" id="notes-display">
-      <div class="note-chip"><span class="icon">🌊</span> Sea Water</div>
-      <div class="note-chip"><span class="icon">🪨</span> Ambergris</div>
-      <div class="note-chip"><span class="icon">🍋</span> Grapefruit</div>
-      <div class="note-chip"><span class="icon">🍊</span> Mandarin</div>
-      <div class="note-chip"><span class="icon">🌿</span> Patchouli</div>
-      <div class="note-chip"><span class="icon">🍃</span> Bay Leaf</div>
-    </div>
-  </div>
-
-  <div class="seasons-row">
-    <div class="section-label">Temporadas recomendadas</div>
-    <div class="seasons-grid" id="seasons-display">
-      <div class="season-pill winter">❄️ Invierno</div>
-      <div class="season-pill spring">🌸 Primavera</div>
-      <div class="season-pill summer">☀️ Verano</div>
-      <div class="season-pill autumn">🍂 Otoño</div>
-    </div>
-  </div>
+  <!-- Las secciones de notas y temporadas han sido eliminadas -->
 
   <div class="divider"></div>
 
@@ -620,21 +552,21 @@
 
 <script>
   // ══════════════════════════════════════════════════
-  //  ✏️ CONFIGURACIÓN — NÚMERO DE WHATSAPP CORREGIDO
+  //  CONFIGURACIÓN
   // ══════════════════════════════════════════════════
-  const WA_NUMBER = "525582006752";  // México: 52 + 55 8200 6752
+  const WA_NUMBER = "525582006752";  // Tu número de México
 
   const AROMAS = [
-    { name: "Aqua di Mare", emoji: "🌊", category: "Acuático", notes: ["🌊 Sea Water", "🪨 Ambergris", "🍋 Grapefruit", "🍊 Mandarin", "🌿 Patchouli", "🍃 Bay Leaf"], seasons: ["winter", "spring", "summer", "autumn"] },
-    { name: "Rosa Nocturna", emoji: "🥀", category: "Floral", notes: ["🌹 Rosa Turca", "🌙 Musgo Blanco", "🌿 Sándalo", "✨ Almizcle"], seasons: ["spring", "summer"] },
-    { name: "Bosque de Oud", emoji: "🪵", category: "Amaderado", notes: ["🪵 Oud", "🌿 Cedro", "🍂 Vetiver", "🌶️ Pimienta Negra"], seasons: ["winter", "autumn"] },
-    { name: "Vainilla Amber", emoji: "🍯", category: "Oriental", notes: ["🍯 Vainilla", "🪨 Ámbar", "🌺 Jazmín", "🌰 Tonka"], seasons: ["winter", "autumn"] },
-    { name: "Cítrico Fresco", emoji: "🍊", category: "Cítrico", notes: ["🍋 Limón", "🍊 Naranja", "🌿 Menta", "🌸 Flor de Azahar"], seasons: ["spring", "summer"] },
-    { name: "Jardín Provenzal", emoji: "💜", category: "Aromático", notes: ["💜 Lavanda", "🌿 Romero", "🌸 Iris", "🍃 Vetiver"], seasons: ["spring", "summer", "autumn"] },
-    { name: "Noche Parisina", emoji: "🖤", category: "Chypre", notes: ["🌹 Rosa", "🪨 Pachulí", "🍂 Musgo de Roble", "✨ Bergamota"], seasons: ["winter", "autumn"] },
-    { name: "Mar Caribe", emoji: "🌴", category: "Tropical", notes: ["🌴 Coco", "🌺 Tiare", "🍍 Piña", "🌊 Sal Marina"], seasons: ["summer"] },
-    { name: "Flor de Cerezo", emoji: "🌸", category: "Frutal Floral", notes: ["🌸 Cereza", "🌹 Peonía", "🍑 Durazno", "🌸 Magnolia"], seasons: ["spring"] },
-    { name: "Tabaco & Cuero", emoji: "🟫", category: "Cuero", notes: ["🟫 Tabaco", "🪵 Cuero", "🌶️ Especias", "🌿 Cedro"], seasons: ["winter", "autumn"] },
+    { name: "Aqua di Mare", emoji: "🌊", category: "Acuático" },
+    { name: "Rosa Nocturna", emoji: "🥀", category: "Floral" },
+    { name: "Bosque de Oud", emoji: "🪵", category: "Amaderado" },
+    { name: "Vainilla Amber", emoji: "🍯", category: "Oriental" },
+    { name: "Cítrico Fresco", emoji: "🍊", category: "Cítrico" },
+    { name: "Jardín Provenzal", emoji: "💜", category: "Aromático" },
+    { name: "Noche Parisina", emoji: "🖤", category: "Chypre" },
+    { name: "Mar Caribe", emoji: "🌴", category: "Tropical" },
+    { name: "Flor de Cerezo", emoji: "🌸", category: "Frutal Floral" },
+    { name: "Tabaco & Cuero", emoji: "🟫", category: "Cuero" }
   ];
 
   // Estado
@@ -654,7 +586,10 @@
   searchInput.addEventListener('input', () => {
     const q = searchInput.value.toLowerCase().trim();
     if (!q) { searchResults.classList.remove('visible'); return; }
-    const matches = AROMAS.filter(a => a.name.toLowerCase().includes(q) || a.category.toLowerCase().includes(q) || a.notes.some(n => n.toLowerCase().includes(q)));
+    const matches = AROMAS.filter(a => 
+      a.name.toLowerCase().includes(q) || 
+      a.category.toLowerCase().includes(q)
+    );
     searchResults.innerHTML = matches.length === 0
       ? `<div class="search-result-item"><span class="aroma-name" style="color:var(--muted)">Sin resultados para "${q}"</span></div>`
       : matches.map(a => {
@@ -668,7 +603,9 @@
     searchResults.classList.add('visible');
   });
 
-  document.addEventListener('click', e => { if (!e.target.closest('.search-wrap')) searchResults.classList.remove('visible'); });
+  document.addEventListener('click', e => { 
+    if (!e.target.closest('.search-wrap')) searchResults.classList.remove('visible'); 
+  });
 
   function selectAromaById(id) { selectAroma(AROMAS[parseInt(id)]); }
 
@@ -681,14 +618,6 @@
     document.getElementById('tag-name').textContent = aroma.name;
     document.getElementById('tag-category').textContent = aroma.category;
     document.getElementById('selected-aroma-tag').classList.add('visible');
-    document.getElementById('notes-display').innerHTML = aroma.notes.map(n => {
-      const [icon, ...rest] = n.split(' ');
-      return `<div class="note-chip"><span class="icon">${icon}</span> ${rest.join(' ')}</div>`;
-    }).join('');
-    const labels = { winter: '❄️ Invierno', spring: '🌸 Primavera', summer: '☀️ Verano', autumn: '🍂 Otoño' };
-    document.getElementById('seasons-display').innerHTML = ['winter','spring','summer','autumn'].map(s =>
-      `<div class="season-pill ${s}" style="opacity:${aroma.seasons.includes(s) ? 1 : 0.3}">${labels[s]}</div>`
-    ).join('');
     showToast(`${aroma.emoji} "${aroma.name}" seleccionado`);
   }
 
@@ -735,7 +664,10 @@
   function clearCart() { state.cartItems = []; updateCartSummary(); showToast('🗑 Carrito vaciado'); }
 
   function updateCartSummary() {
-    if (state.cartItems.length === 0) { document.getElementById('cart-summary').classList.remove('visible'); return; }
+    if (state.cartItems.length === 0) { 
+      document.getElementById('cart-summary').classList.remove('visible'); 
+      return; 
+    }
     const total = state.cartItems.reduce((s, i) => s + i.total, 0);
     document.getElementById('cart-items-list').innerHTML = state.cartItems.map(item =>
       `<div class="cart-item"><span>${item.emoji} ${item.aroma} ${item.size}${item.feromonas ? ' + Feromonas' : ''} ×${item.quantity}</span><span>$${item.total.toFixed(2)}</span></div>`
@@ -749,7 +681,7 @@
     const total = state.cartItems.reduce((s, i) => s + i.total, 0);
     const fecha = new Date().toLocaleDateString('es-MX', { day:'2-digit', month:'2-digit', year:'numeric' });
     const hora  = new Date().toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' });
-    let msg = `🌸 *NUEVO PEDIDO — Parfum Maison*\n📅 ${fecha} a las ${hora}\n━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    let msg = `🌸 *NUEVO PEDIDO — Aion Perfumes*\n📅 ${fecha} a las ${hora}\n━━━━━━━━━━━━━━━━━━━━━\n\n`;
     state.cartItems.forEach((item, i) => {
       msg += `*${i + 1}. ${item.emoji} ${item.aroma}*\n   📦 Tamaño: ${item.size}\n   🧪 Feromonas: ${item.feromonas ? 'Sí  (+$60.00)' : 'No'}\n   🔢 Cantidad: ${item.quantity}\n   💵 Subtotal: $${item.total.toFixed(2)} MXN\n\n`;
     });
