@@ -17,6 +17,9 @@
     --green-wa-dark: #128c4e;
     --success: #1f5c38;
     --success-bg: #d6f0e0;
+    --promo-100: #e6d5b8;
+    --promo-60: #d4c4a8;
+    --promo-30: #c2b398;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -120,6 +123,84 @@
     height: 1px;
     background: var(--border);
     margin: 4px 20px 20px;
+  }
+
+  /* Promo buttons */
+  .promo-section {
+    padding: 0 20px 20px;
+  }
+  .promo-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .promo-btn {
+    flex: 1;
+    min-width: 100px;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 6px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--dark);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .promo-btn.active {
+    background: var(--dark);
+    color: white;
+    border-color: var(--dark);
+  }
+  .promo-btn.promo-100 { border-bottom: 4px solid #b8975a; }
+  .promo-btn.promo-60 { border-bottom: 4px solid #a3875a; }
+  .promo-btn.promo-30 { border-bottom: 4px solid #8f7652; }
+  .promo-btn small {
+    display: block;
+    font-size: 0.65rem;
+    opacity: 0.8;
+  }
+  .promo-status {
+    margin-top: 12px;
+    background: #f4efe8;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    display: none;
+  }
+  .promo-status.visible { display: block; }
+  .promo-selected-list {
+    margin: 8px 0 4px;
+    font-size: 0.8rem;
+  }
+  .promo-selected-item {
+    display: inline-block;
+    background: white;
+    border-radius: 20px;
+    padding: 2px 10px 2px 8px;
+    margin: 3px 5px 3px 0;
+    border: 1px solid var(--border);
+  }
+  .promo-selected-item span {
+    margin-left: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #a00;
+  }
+  .btn-finish-promo {
+    background: var(--dark);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-top: 8px;
+    cursor: pointer;
+    width: 100%;
   }
 
   .search-section { padding: 0 20px 16px; }
@@ -361,22 +442,47 @@
     margin-bottom: 8px;
     font-weight: 600;
   }
-  .cart-item {
+  .cart-item, .promo-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 0.85rem;
     padding: 3px 0;
     color: var(--dark);
+    border-bottom: 1px dashed #c0d9cc;
   }
-  .cart-item-info {
+  .promo-item {
+    flex-wrap: wrap;
+    padding: 8px 0;
+  }
+  .promo-header {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  .promo-details {
+    width: 100%;
+    margin-top: 8px;
+    padding-left: 16px;
+    font-size: 0.78rem;
+    display: none;
+  }
+  .promo-details.expanded { display: block; }
+  .promo-detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+  }
+  .cart-item-info, .promo-info {
     flex: 1;
   }
   .cart-item-price {
     margin-right: 8px;
     font-weight: 500;
   }
-  .cart-item-remove {
+  .cart-item-remove, .promo-remove {
     background: none;
     border: none;
     color: var(--muted);
@@ -385,9 +491,8 @@
     padding: 4px 6px;
     border-radius: 50%;
     transition: all 0.15s;
-    line-height: 1;
   }
-  .cart-item-remove:hover {
+  .cart-item-remove:hover, .promo-remove:hover {
     background: #fdecea;
     color: #8b3010;
   }
@@ -505,13 +610,37 @@
 <div class="container">
   <div class="product-image-wrap">
     <img src="https://images.unsplash.com/photo-1541643600914-78b084683702?w=800&q=80" alt="Perfume Personalizado">
-    <div class="rating-badge">⭐ 4.1 &nbsp;(162)</div>
+    <div class="rating-badge">⭐ 5 &nbsp;(1623)</div>
   </div>
 
   <div class="product-info">
     <h2>Perfume Personalizado</h2>
     <div class="price-range">$339.00 – $699.00</div>
     <div class="product-subtitle">Longevity · Strong Sillage</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Promociones -->
+  <div class="promo-section">
+    <div class="section-label">Promociones por volumen</div>
+    <div class="promo-buttons">
+      <button class="promo-btn promo-100" id="promo-100-btn" onclick="startPromo('100ml')">
+        4×3 en 100ml <small>$2,097</small>
+      </button>
+      <button class="promo-btn promo-60" id="promo-60-btn" onclick="startPromo('60ml')">
+        5×4 en 60ml <small>$2,028</small>
+      </button>
+      <button class="promo-btn promo-30" id="promo-30-btn" onclick="startPromo('30ml')">
+        6×5 en 30ml <small>$1,695</small>
+      </button>
+    </div>
+    <div class="promo-status" id="promo-status">
+      <div id="promo-status-text"></div>
+      <div class="promo-selected-list" id="promo-selected-list"></div>
+      <button class="btn-finish-promo" id="btn-finish-promo" onclick="finishPromo()" style="display:none;">Agregar promoción al carrito</button>
+      <button class="btn-clear-cart" style="margin-top:6px;" onclick="cancelPromo()">Cancelar promoción</button>
+    </div>
   </div>
 
   <div class="divider"></div>
@@ -612,9 +741,9 @@
   // ══════════════════════════════════════════════════
   //  CONFIGURACIÓN
   // ══════════════════════════════════════════════════
-  const WA_NUMBER = "525582006752";  // Tu número de México
+  const WA_NUMBER = "525582006752";
 
-  // Lista completa de perfumes (código, nombre, casa, ocasión, familia)
+   // Lista completa de perfumes (código, nombre, casa, ocasión, familia)
   const AROMAS = [
     { code: "C0086", name: "First Instinct Blue", brand: "Abercrombie & Fitch", occasion: "Día / Verano / Casual", family: "Aromática Fougère" },
     { code: "C0085", name: "First Instinct", brand: "Abercrombie & Fitch", occasion: "Día / Casual", family: "Aromática Fougère" },
@@ -982,6 +1111,17 @@
     cartItems: []
   };
 
+  // Promoción activa
+  let promoState = {
+    active: false,
+    size: null,        // '100ml', '60ml', '30ml'
+    required: 0,
+    pricePerUnit: 0,
+    promoPrice: 0,
+    withFeromonas: false,
+    selectedAromas: []   // array de objetos aroma
+  };
+
   // Búsqueda
   const searchInput = document.getElementById('search-input');
   const searchResults = document.getElementById('search-results');
@@ -1002,7 +1142,7 @@
       ? `<div class="search-result-item"><span class="aroma-name" style="color:var(--muted)">Sin resultados para "${q}"</span></div>`
       : matches.map(a => {
           const idx = AROMAS.indexOf(a);
-          return `<div class="search-result-item" onclick="selectAromaById(${idx})">
+          return `<div class="search-result-item" onclick="handleAromaSelection(${idx})">
             <span class="aroma-code">${a.code}</span>
             <div class="aroma-info">
               <div class="aroma-name">${a.name}</div>
@@ -1022,28 +1162,30 @@
     if (!e.target.closest('.search-wrap')) searchResults.classList.remove('visible'); 
   });
 
-  function selectAromaById(id) { selectAroma(AROMAS[parseInt(id)]); }
+  // Manejo de selección según modo
+  function handleAromaSelection(idx) {
+    const aroma = AROMAS[idx];
+    if (promoState.active) {
+      addToPromoSelection(aroma);
+    } else {
+      selectAroma(aroma);
+    }
+    searchResults.classList.remove('visible');
+    searchInput.value = '';
+  }
 
   function selectAroma(aroma) {
-    if (!aroma) return;
     state.selectedAroma = aroma;
-    searchInput.value = '';
-    searchResults.classList.remove('visible');
-    
     document.getElementById('tag-emoji').textContent = '🧴';
-    document.getElementById('tag-name').innerHTML = `
-      <span class="aroma-code-badge">${aroma.code}</span> ${aroma.name}
-    `;
+    document.getElementById('tag-name').innerHTML = `<span class="aroma-code-badge">${aroma.code}</span> ${aroma.name}`;
     document.getElementById('tag-category').textContent = `${aroma.brand} · ${aroma.family}`;
     document.getElementById('selected-aroma-tag').classList.add('visible');
-    
     showToast(`🧴 ${aroma.code} "${aroma.name}" seleccionado`);
   }
 
   function clearAroma() {
     state.selectedAroma = null;
     document.getElementById('selected-aroma-tag').classList.remove('visible');
-    searchInput.value = '';
   }
 
   function selectSize(size, price) {
@@ -1064,10 +1206,150 @@
     document.getElementById('qty-display').textContent = state.quantity;
   }
 
+  // ----- LÓGICA DE PROMOCIONES -----
+  function startPromo(size) {
+    // Resetear promoción anterior
+    promoState = {
+      active: true,
+      size: size,
+      required: size === '100ml' ? 4 : (size === '60ml' ? 5 : 6),
+      pricePerUnit: size === '100ml' ? 699 : (size === '60ml' ? 507 : 339),
+      promoPrice: size === '100ml' ? 2097 : (size === '60ml' ? 2028 : 1695),
+      withFeromonas: false,
+      selectedAromas: []
+    };
+    
+    // Actualizar UI
+    document.querySelectorAll('.promo-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`promo-${size.replace('ml','')}-btn`).classList.add('active');
+    document.getElementById('promo-status').classList.add('visible');
+    updatePromoUI();
+    
+    // Desactivar selección individual temporalmente
+    state.selectedAroma = null;
+    document.getElementById('selected-aroma-tag').classList.remove('visible');
+    
+    showToast(`🎁 Promoción ${promoState.required}×${promoState.required-1} en ${size} activada`);
+  }
+
+  function updatePromoUI() {
+    const count = promoState.selectedAromas.length;
+    const required = promoState.required;
+    const statusText = document.getElementById('promo-status-text');
+    const listDiv = document.getElementById('promo-selected-list');
+    const finishBtn = document.getElementById('btn-finish-promo');
+    
+    statusText.innerHTML = `Selecciona ${required} aromas distintos (${count}/${required})`;
+    
+    if (count === 0) {
+      listDiv.innerHTML = '';
+    } else {
+      listDiv.innerHTML = promoState.selectedAromas.map((a, i) => 
+        `<span class="promo-selected-item">${a.code} ${a.name} <span onclick="removePromoAroma(${i})">✕</span></span>`
+      ).join('');
+    }
+    
+    if (count === required) {
+      finishBtn.style.display = 'block';
+    } else {
+      finishBtn.style.display = 'none';
+    }
+    
+    // Sincronizar checkbox de feromonas
+    const addonDiv = document.getElementById('addon-feromonas');
+    const checkbox = document.getElementById('checkbox-feromonas');
+    if (promoState.withFeromonas) {
+      addonDiv.classList.add('checked');
+      checkbox.textContent = '✓';
+    } else {
+      addonDiv.classList.remove('checked');
+      checkbox.textContent = '';
+    }
+  }
+
+  function addToPromoSelection(aroma) {
+    if (promoState.selectedAromas.length >= promoState.required) {
+      showToast(`⚠️ Ya tienes los ${promoState.required} aromas requeridos`);
+      return;
+    }
+    // Evitar duplicados
+    if (promoState.selectedAromas.some(a => a.code === aroma.code)) {
+      showToast(`⚠️ ${aroma.code} ya está en la promoción`);
+      return;
+    }
+    promoState.selectedAromas.push(aroma);
+    updatePromoUI();
+    
+    if (promoState.selectedAromas.length === promoState.required) {
+      showToast(`🎉 ¡Promoción completa! Presiona "Agregar promoción al carrito"`);
+    } else {
+      showToast(`✅ ${aroma.code} añadido (${promoState.selectedAromas.length}/${promoState.required})`);
+    }
+  }
+
+  function removePromoAroma(index) {
+    promoState.selectedAromas.splice(index, 1);
+    updatePromoUI();
+  }
+
+  function togglePromoFeromonas() {
+    promoState.withFeromonas = !promoState.withFeromonas;
+    updatePromoUI();
+  }
+
+  function finishPromo() {
+    if (promoState.selectedAromas.length !== promoState.required) {
+      showToast(`⚠️ Selecciona exactamente ${promoState.required} aromas`);
+      return;
+    }
+    
+    const unitPrice = promoState.pricePerUnit;
+    const feromonasCost = promoState.withFeromonas ? 60 * promoState.required : 0;
+    const totalPromoPrice = promoState.promoPrice + feromonasCost;
+    
+    const promoPack = {
+      type: 'promo',
+      size: promoState.size,
+      required: promoState.required,
+      payFor: promoState.required - 1,
+      aromas: [...promoState.selectedAromas],
+      withFeromonas: promoState.withFeromonas,
+      total: totalPromoPrice
+    };
+    
+    state.cartItems.push(promoPack);
+    updateCartSummary();
+    cancelPromo();
+    showToast(`🎁 Promoción ${promoState.required}×${promoState.required-1} agregada al carrito`);
+  }
+
+  function cancelPromo() {
+    promoState.active = false;
+    document.querySelectorAll('.promo-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('promo-status').classList.remove('visible');
+    document.getElementById('btn-finish-promo').style.display = 'none';
+  }
+
+  // Modificar toggleAddon para que en modo promo controle el estado de promo
+  const originalToggleAddon = toggleAddon;
+  toggleAddon = function() {
+    if (promoState.active) {
+      togglePromoFeromonas();
+    } else {
+      originalToggleAddon();
+    }
+  };
+
+  // ----- CARRITO -----
   function addToCart() {
+    if (promoState.active) {
+      showToast('⚠️ Estás en modo promoción. Cancela o finaliza la promoción para añadir individual.');
+      return;
+    }
     if (!state.selectedAroma) { showToast('⚠️ Por favor elige un aroma primero'); return; }
     const unitPrice = state.selectedPrice + (state.withFeromonas ? 60 : 0);
     state.cartItems.push({
+      type: 'single',
       aromaCode: state.selectedAroma.code,
       aromaName: state.selectedAroma.name,
       size: state.selectedSize,
@@ -1097,17 +1379,43 @@
       document.getElementById('cart-summary').classList.remove('visible'); 
       return; 
     }
-    const total = state.cartItems.reduce((s, i) => s + i.total, 0);
-    document.getElementById('cart-items-list').innerHTML = state.cartItems.map((item, i) =>
-      `<div class="cart-item">
-        <span class="cart-item-info">${item.aromaCode} ${item.aromaName} ${item.size}${item.feromonas ? ' + Feromonas' : ''} ×${item.quantity}</span>
-        <span class="cart-item-price">$${item.total.toFixed(2)}</span>
-        <button class="cart-item-remove" onclick="removeCartItem(${i})" title="Eliminar artículo">✕</button>
-      </div>`
-    ).join('');
+    
+    let html = '';
+    let total = 0;
+    
+    state.cartItems.forEach((item, i) => {
+      if (item.type === 'single') {
+        total += item.total;
+        html += `<div class="cart-item">
+          <span class="cart-item-info">${item.aromaCode} ${item.aromaName} ${item.size}${item.feromonas ? ' + Feromonas' : ''} ×${item.quantity}</span>
+          <span class="cart-item-price">$${item.total.toFixed(2)}</span>
+          <button class="cart-item-remove" onclick="removeCartItem(${i})" title="Eliminar">✕</button>
+        </div>`;
+      } else { // promo pack
+        total += item.total;
+        const promoId = `promo-${i}`;
+        html += `<div class="promo-item">
+          <div class="promo-header" onclick="togglePromoDetails('${promoId}')">
+            <span class="promo-info">🎁 ${item.required}×${item.payFor} en ${item.size} ${item.withFeromonas ? '+ Feromonas' : ''}</span>
+            <span class="cart-item-price">$${item.total.toFixed(2)}</span>
+            <button class="promo-remove" onclick="event.stopPropagation(); removeCartItem(${i})">✕</button>
+          </div>
+          <div class="promo-details" id="${promoId}">
+            ${item.aromas.map(a => `<div class="promo-detail-item"><span>${a.code} ${a.name}</span><span>Incluido</span></div>`).join('')}
+          </div>
+        </div>`;
+      }
+    });
+    
+    document.getElementById('cart-items-list').innerHTML = html;
     document.getElementById('cart-total-price').textContent = `$${total.toFixed(2)}`;
     document.getElementById('cart-summary').classList.add('visible');
   }
+
+  window.togglePromoDetails = function(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('expanded');
+  };
 
   function sendToWhatsApp() {
     if (state.cartItems.length === 0) { showToast('⚠️ Añade al menos un producto al carrito'); return; }
@@ -1115,14 +1423,19 @@
     const fecha = new Date().toLocaleDateString('es-MX', { day:'2-digit', month:'2-digit', year:'numeric' });
     const hora  = new Date().toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' });
     let msg = `🌸 *NUEVO PEDIDO — Aion Perfumes*\n📅 ${fecha} a las ${hora}\n━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    
     state.cartItems.forEach((item, i) => {
-      msg += `*${i + 1}. ${item.aromaCode} — ${item.aromaName}*\n   📦 Tamaño: ${item.size}\n   🧪 Feromonas: ${item.feromonas ? 'Sí  (+$60.00)' : 'No'}\n   🔢 Cantidad: ${item.quantity}\n   💵 Subtotal: $${item.total.toFixed(2)} MXN\n\n`;
+      if (item.type === 'single') {
+        msg += `*${i+1}. ${item.aromaCode} — ${item.aromaName}*\n   📦 ${item.size}${item.feromonas ? ' + Feromonas' : ''} ×${item.quantity}  💵 $${item.total.toFixed(2)}\n\n`;
+      } else {
+        msg += `*${i+1}. 🎁 PROMO ${item.required}×${item.payFor} en ${item.size}${item.withFeromonas ? ' + Feromonas' : ''}*\n`;
+        item.aromas.forEach(a => msg += `   • ${a.code} ${a.name}\n`);
+        msg += `   💵 Total promo: $${item.total.toFixed(2)}\n\n`;
+      }
     });
-    msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-    msg += `💰 *TOTAL: $${total.toFixed(2)} MXN*\n`;
-    msg += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    msg += `📋 *Al finalizar el pago por medio de WhatsApp recibirás un formulario para llenar tus datos y dirección de entrega, o si lo prefieres también podrás enviarnos la dirección de entrega en este mismo chat.*\n\n`;
-    msg += `_Por favor envíame el link de Mercado Pago para completar mi compra. ¡Gracias! 🙏_`;
+    
+    msg += `━━━━━━━━━━━━━━━━━━━━━\n💰 *TOTAL: $${total.toFixed(2)} MXN*\n━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    msg += `📋 *Al finalizar el pago recibirás un formulario para tus datos y dirección.*\n\n_Por favor envíame el link de Mercado Pago. ¡Gracias! 🙏_`;
     
     const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
     showToast('📲 Abriendo WhatsApp...');
@@ -1136,6 +1449,21 @@
     clearTimeout(t._timer);
     t._timer = setTimeout(() => t.classList.remove('show'), 2800);
   }
+
+  // Exponer funciones globales
+  window.startPromo = startPromo;
+  window.finishPromo = finishPromo;
+  window.cancelPromo = cancelPromo;
+  window.handleAromaSelection = handleAromaSelection;
+  window.removePromoAroma = removePromoAroma;
+  window.clearAroma = clearAroma;
+  window.selectSize = selectSize;
+  window.toggleAddon = toggleAddon;
+  window.changeQty = changeQty;
+  window.addToCart = addToCart;
+  window.removeCartItem = removeCartItem;
+  window.clearCart = clearCart;
+  window.sendToWhatsApp = sendToWhatsApp;
 </script>
 </body>
 </html>
