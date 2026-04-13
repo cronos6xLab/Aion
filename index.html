@@ -364,9 +364,32 @@
   .cart-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     font-size: 0.85rem;
     padding: 3px 0;
     color: var(--dark);
+  }
+  .cart-item-info {
+    flex: 1;
+  }
+  .cart-item-price {
+    margin-right: 8px;
+    font-weight: 500;
+  }
+  .cart-item-remove {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px 6px;
+    border-radius: 50%;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+  .cart-item-remove:hover {
+    background: #fdecea;
+    color: #8b3010;
   }
   .cart-total {
     display: flex;
@@ -1057,7 +1080,17 @@
     showToast(`✓ ${state.selectedAroma.code} ${state.selectedAroma.name} ${state.selectedSize} ×${state.quantity} añadido`);
   }
 
-  function clearCart() { state.cartItems = []; updateCartSummary(); showToast('🗑 Carrito vaciado'); }
+  function removeCartItem(index) {
+    state.cartItems.splice(index, 1);
+    updateCartSummary();
+    showToast('🗑 Artículo eliminado');
+  }
+
+  function clearCart() { 
+    state.cartItems = []; 
+    updateCartSummary(); 
+    showToast('🗑 Carrito vaciado'); 
+  }
 
   function updateCartSummary() {
     if (state.cartItems.length === 0) { 
@@ -1065,8 +1098,12 @@
       return; 
     }
     const total = state.cartItems.reduce((s, i) => s + i.total, 0);
-    document.getElementById('cart-items-list').innerHTML = state.cartItems.map(item =>
-      `<div class="cart-item"><span>${item.aromaCode} ${item.aromaName} ${item.size}${item.feromonas ? ' + Feromonas' : ''} ×${item.quantity}</span><span>$${item.total.toFixed(2)}</span></div>`
+    document.getElementById('cart-items-list').innerHTML = state.cartItems.map((item, i) =>
+      `<div class="cart-item">
+        <span class="cart-item-info">${item.aromaCode} ${item.aromaName} ${item.size}${item.feromonas ? ' + Feromonas' : ''} ×${item.quantity}</span>
+        <span class="cart-item-price">$${item.total.toFixed(2)}</span>
+        <button class="cart-item-remove" onclick="removeCartItem(${i})" title="Eliminar artículo">✕</button>
+      </div>`
     ).join('');
     document.getElementById('cart-total-price').textContent = `$${total.toFixed(2)}`;
     document.getElementById('cart-summary').classList.add('visible');
